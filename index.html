@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#100f1b" />
+  <title>VYBE — Share your world</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{--bg:#100f1b;--panel:#191827;--panel2:#211f32;--text:#f7f5ff;--muted:#aaa6bd;--line:#302d43;--pink:#ff4f9a;--purple:#9a73ff;--cyan:#63d9e8;--danger:#ff647c;--radius:20px}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 20% -10%,#30204b 0,transparent 40%),var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min-height:100vh}
+    button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
+    .shell{max-width:1120px;margin:auto;padding:18px 18px 100px}.top{display:flex;align-items:center;justify-content:space-between;padding:8px 0 22px}
+    .logo{font:700 29px "Space Grotesk";letter-spacing:-1.5px;background:linear-gradient(90deg,var(--pink),#a88aff,var(--cyan));-webkit-background-clip:text;color:transparent}
+    .tag{font-size:12px;color:var(--muted);margin-top:2px}.top-actions{display:flex;gap:9px;align-items:center}
+    .pill,.icon-btn{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:999px;padding:10px 14px}
+    .icon-btn{width:42px;height:42px;padding:0;font-size:18px}.layout{display:grid;grid-template-columns:minmax(0,680px) 290px;gap:22px;justify-content:center}
+    .card{background:linear-gradient(145deg,rgba(35,32,54,.96),rgba(23,22,37,.98));border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:0 14px 40px #0002}
+    .auth-wrap{max-width:430px;margin:7vh auto}.auth-title{font:700 30px "Space Grotesk";margin:0 0 7px}.muted{color:var(--muted)}.small{font-size:13px}
+    .field{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:13px;background:#11101d;color:var(--text);outline:none;margin:7px 0 12px}
+    .field:focus{border-color:var(--purple);box-shadow:0 0 0 3px #9a73ff22}textarea.field{resize:vertical;min-height:92px}
+    .primary{border:0;border-radius:13px;padding:12px 18px;color:#fff;font-weight:700;background:linear-gradient(100deg,#ed4598,#8c65f5);box-shadow:0 8px 22px #a04ee833}
+    .primary:disabled{opacity:.5;cursor:not-allowed}.subtle{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:12px;padding:10px 14px}
+    .link{color:#c5adff;background:none;border:0;padding:8px 0}.composer{margin-bottom:16px}.composer-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    .avatar{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;flex:none;background:linear-gradient(135deg,#f34f9d,#8666f5);font-weight:800;overflow:hidden}
+    .avatar img{width:100%;height:100%;object-fit:cover}.userline{display:flex;align-items:center;gap:11px;min-width:0}.username{font-weight:700}.handle{font-size:12px;color:var(--muted);margin-top:2px}
+    .composer-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.file-label{display:inline-flex;align-items:center;gap:7px;color:#d4c8ff;border:1px solid var(--line);border-radius:12px;padding:10px 13px;cursor:pointer}
+    .preview{max-width:100%;max-height:260px;border-radius:14px;margin:8px 0;display:block}.post{margin-bottom:14px}.post-top{display:flex;justify-content:space-between;align-items:center}
+    .post-content{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.55;margin:15px 0}.post-image{width:100%;max-height:560px;object-fit:contain;border-radius:15px;background:#0d0c16}
+    .post-actions{display:flex;gap:9px;align-items:center;border-top:1px solid var(--line);padding-top:12px;margin-top:12px}.action{border:0;background:transparent;color:var(--muted);padding:7px 9px;border-radius:10px}.action:hover{background:var(--panel2);color:var(--text)}.liked{color:#ff5b9f}
+    .comments{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}.comment{font-size:13px;margin:8px 0;line-height:1.45}.comment strong{margin-right:5px}.comment-form{display:flex;gap:8px;margin-top:10px}.comment-form input{margin:0;min-width:0}.comment-form button{white-space:nowrap}
+    .side-title{font:700 16px "Space Grotesk";margin:0 0 12px}.side-card{margin-bottom:14px}.nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px}.nav button{flex:1;min-width:85px}
+    .notice{padding:12px 14px;border-radius:12px;background:#211f32;color:#d8d2e9;font-size:13px;margin:12px 0}.status{font-size:13px;color:var(--muted);min-height:18px;margin-top:8px}.empty{text-align:center;padding:35px 15px;color:var(--muted)}
+    .profile-row{display:flex;gap:14px;align-items:center}.profile-big{width:70px;height:70px;font-size:24px}.divider{height:1px;background:var(--line);margin:14px 0}
+    .modal-bg{position:fixed;inset:0;background:#0009;display:grid;place-items:center;padding:18px;z-index:10}.modal{width:min(100%,430px);max-height:85vh;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:20px}
+    .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#302b45;color:#fff;padding:12px 18px;border-radius:12px;z-index:20;box-shadow:0 8px 30px #0006;max-width:90%;font-size:13px}
+    @media(max-width:800px){.layout{grid-template-columns:1fr}.sidebar{display:none}.shell{padding:12px 12px 90px}.top{padding-bottom:15px}.card{padding:15px}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="top">
+      <div><div class="logo">VYBE</div><div class="tag">Your people. Your moments. Your vibe.</div></div>
+      <div class="top-actions"><button class="icon-btn" id="refreshBtn" title="Refresh">↻</button><button class="pill hidden" id="logoutBtn">Log out</button></div>
+    </header>
+
+    <section id="authView" class="auth-wrap card">
+      <div class="logo" style="font-size:34px">VYBE</div>
+      <h1 class="auth-title" id="authHeading">Welcome back</h1>
+      <p class="muted small" id="authSub">Log in to see what's happening.</p>
+      <div id="signupNameWrap" class="hidden"><label class="small muted" for="fullName">Your name</label><input class="field" id="fullName" placeholder="e.g. Deepak"></div>
+      <div id="signupUsernameWrap" class="hidden"><label class="small muted" for="username">Username</label><input class="field" id="username" placeholder="e.g. deepak_07" maxlength="24" autocomplete="username"></div>
+      <label class="small muted" for="email">Email</label><input class="field" id="email" type="email" placeholder="you@example.com" autocomplete="email">
+      <label class="small muted" for="password">Password</label><input class="field" id="password" type="password" placeholder="At least 6 characters" autocomplete="current-password">
+      <button class="primary" id="authSubmit" style="width:100%">Log in</button>
+      <div class="status" id="authStatus"></div>
+      <p class="small muted" style="margin-bottom:0"><span id="switchText">New to VYBE?</span> <button class="link" id="switchAuth">Create account</button></p>
+      <div class="notice">First setup: add your Supabase Project URL and Publishable key inside this file. Never put a service_role key here.</div>
+    </section>
+
+    <section id="appView" class="hidden">
+      <div class="nav">
+        <button class="subtle" data-page="feed">⌂ Feed</button>
+        <button class="subtle" data-page="profile">◉ My profile</button>
+        <button class="subtle" data-page="notifications">♧ Alerts</button>
+      </div>
+      <div class="layout">
+        <div>
+          <section id="feedPage">
+            <div class="card composer">
+              <div class="composer-head"><div class="userline"><div class="avatar" id="composerAvatar">V</div><div><div class="username" id="composerName">Your VYBE</div><div class="handle">Share something with everyone</div></div></div></div>
+              <textarea class="field" id="postText" maxlength="280" placeholder="What's your vibe today? (280 characters max)"></textarea>
+              <img id="imagePreview" class="preview hidden" alt="Selected image preview">
+              <div class="composer-actions"><div><label class="file-label" for="postFile">＋ Add photo</label><input id="postFile" type="file" accept="image/*" class="hidden"><span class="small muted" id="charCount">0/280</span></div><button class="primary" id="publishBtn">Share post</button></div>
+              <div class="status" id="postStatus"></div>
+            </div>
+            <div id="feedList"><div class="empty">Loading your feed…</div></div>
+          </section>
+          <section id="profilePage" class="hidden">
+            <div class="card">
+              <div class="profile-row"><div class="avatar profile-big" id="profileAvatar">V</div><div><h2 style="margin:0" id="profileName">Your profile</h2><div class="muted small" id="profileHandle"></div></div></div>
+              <div class="divider"></div>
+              <label class="small muted">Display name</label><input class="field" id="editFullName" maxlength="50">
+              <label class="small muted">Username</label><input class="field" id="editUsername" maxlength="24">
+              <button class="primary" id="saveProfile">Save profile</button>
+              <div class="status" id="profileStatus"></div>
+              <div class="divider"></div><div class="small muted" id="profileCounts">Your posts</div>
+            </div>
+            <h3 class="side-title" style="margin-top:18px">Your posts</h3><div id="myPosts"></div>
+          </section>
+          <section id="notificationsPage" class="hidden"><div class="card"><h2 class="side-title">Notifications</h2><div id="notificationList" class="muted small">Loading…</div></div></section>
+        </div>
+        <aside class="sidebar">
+          <div class="card side-card"><h3 class="side-title">Welcome to VYBE</h3><p class="small muted">A place to share your moments, connect with people and find your community.</p><div class="divider"></div><div class="small muted">Keep it kind. Keep it real. ✨</div></div>
+          <div class="card side-card"><h3 class="side-title">Quick guide</h3><p class="small muted">1. Write a post<br>2. Add a photo if you like<br>3. Like and comment on posts</p></div>
+          <div class="small muted">VYBE • Early version</div>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <div id="modalRoot"></div><div id="toastRoot"></div>
+
+<script>
+/* ===================== VYBE CONNECTION SETTINGS =====================
+   Replace the two values below with your Supabase Project URL and
+   Publishable key. These are safe for a browser app when RLS is enabled.
+   NEVER use the service_role / secret key here.
+===================================================================== */
+const SUPABASE_URL = "PASTE_YOUR_SUPABASE_PROJECT_URL_HERE";
+const SUPABASE_KEY = "PASTE_YOUR_SUPABASE_PUBLISHABLE_KEY_HERE";
+
+const $ = (id) => document.getElementById(id);
+const hasConfig = SUPABASE_URL.startsWith("https://") && !SUPABASE_KEY.includes("PASTE_");
+let db = null, currentUser = null, currentProfile = null, isSignup = false, selectedImage = null;
+const esc = (s="") => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const initials = s => (s || "V").trim().slice(0,1).toUpperCase();
+function toast(message){$("toastRoot").innerHTML=`<div class="toast">${esc(message)}</div>`;setTimeout(()=>$("toastRoot").innerHTML="",2800)}
+function setStatus(id,msg){$(id).textContent=msg||""}
+function avatarHTML(profile, extra=""){const name=profile?.full_name||profile?.username||"V";return `<div class="avatar ${extra}">${profile?.avatar_url?`<img src="${esc(profile.avatar_url)}" alt="">`:esc(initials(name))}</div>`}
+function showPage(page){
+  ["feed","profile","notifications"].forEach(p=>$(p+"Page").classList.toggle("hidden",p!==page));
+  if(page==="profile")loadProfilePage(); if(page==="notifications")loadNotifications();
+}
+function setup(){
+  if(!hasConfig){setStatus("authStatus","Setup needed: paste your Supabase URL and Publishable key in this file first.");}
+  else {db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);db.auth.onAuthStateChange((_event,session)=>{if(session?.user){currentUser=session.user;setTimeout(enterApp,0)}else{currentUser=null;currentProfile=null;showAuth()}});db.auth.getSession().then(({data})=>{if(data.session){currentUser=data.session.user;enterApp()}else showAuth()})}
+}
+function showAuth(){$("authView").classList.remove("hidden");$("appView").classList.add("hidden");$("logoutBtn").classList.add("hidden")}
+function switchAuthMode(){isSignup=!isSignup;$("authHeading").textContent=isSignup?"Create your account":"Welcome back";$("authSub").textContent=isSignup?"Join VYBE and share your world.":"Log in to see what's happening.";$("signupNameWrap").classList.toggle("hidden",!isSignup);$("signupUsernameWrap").classList.toggle("hidden",!isSignup);$("authSubmit").textContent=isSignup?"Create account":"Log in";$("switchText").textContent=isSignup?"Already have an account?":"New to VYBE?";$("switchAuth").textContent=isSignup?"Log in":"Create account";$("authStatus").textContent="";$("password").autocomplete=isSignup?"new-password":"current-password"}
+async function handleAuth(){
+  if(!db){setStatus("authStatus","Pehle file mein Supabase URL aur Publishable key add karo.");return}
+  const email=$("email").value.trim(),password=$("password").value;
+  if(!email||!password){setStatus("authStatus","Email aur password dono bharo.");return}
+  $("authSubmit").disabled=true;setStatus("authStatus","Please wait…");
+  try{
+    if(isSignup){
+      const username=$("username").value.trim().toLowerCase().replace(/[^a-z0-9_.]/g,"");
+      const full_name=$("fullName").value.trim();
+      if(!username||username.length<3)throw Error("Username kam se kam 3 characters ka hona chahiye.");
+      if(password.length<6)throw Error("Password kam se kam 6 characters ka rakho.");
+      const {data,error}=await db.auth.signUp({email,password,options:{data:{username,full_name}}});if(error)throw error;
+      if(data.session){currentUser=data.user;await enterApp()}else setStatus("authStatus","Account ban gaya! Email verification link check karo, phir log in karo.");
+    }else{const {data,error}=await db.auth.signInWithPassword({email,password});if(error)throw error;currentUser=data.user;await enterApp()}
+  }catch(e){setStatus("authStatus",e.message||"Something went wrong.")}finally{$("authSubmit").disabled=false}
+}
+async function enterApp(){
+  if(!db||!currentUser)return;
+  $("authView").classList.add("hidden");$("appView").classList.remove("hidden");$("logoutBtn").classList.remove("hidden");
+  await loadCurrentProfile();await loadFeed();showPage("feed");
+}
+async function loadCurrentProfile(){
+  const {data,error}=await db.from("profiles").select("*").eq("id",currentUser.id).maybeSingle();
+  if(error){toast("Profile load nahi hua: "+error.message);return}
+  currentProfile=data||{id:currentUser.id,username:currentUser.email?.split("@")[0]||"user",full_name:"VYBE user"};
+  $("composerName").textContent=currentProfile.full_name||currentProfile.username||"Your VYBE";
+  $("composerAvatar").innerHTML=currentProfile.avatar_url?`<img src="${esc(currentProfile.avatar_url)}">`:esc(initials(currentProfile.full_name||currentProfile.username));
+}
+async function loadFeed(){
+  $("feedList").innerHTML='<div class="empty">Loading posts…</div>';
+  const {data:posts,error}=await db.from("posts").select("*, profiles(id,username,full_name,avatar_url)").order("created_at",{ascending:false}).limit(50);
+  if(error){$("feedList").innerHTML=`<div class="card empty">Feed load nahi hua.<br><span class="small">${esc(error.message)}</span><br><br>Supabase table/policy settings check karni hongi.</div>`;return}
+  if(!posts?.length){$("feedList").innerHTML='<div class="card empty">Abhi koi post nahi hai. Pehli post tum share karo! ✨</div>';return}
+  const ids=posts.map(p=>p.id);
+  const [{data:likes},{data:comments},{data:myLikes}]=await Promise.all([
+    db.from("likes").select("post_id").in("post_id",ids),
+    db.from("comments").select("post_id").in("post_id",ids),
+    db.from("likes").select("post_id").eq("user_id",currentUser.id).in("post_id",ids)
+  ]);
+  const likeCounts={},commentCounts={},likedSet=new Set((myLikes||[]).map(x=>x.post_id));
+  (likes||[]).forEach(x=>likeCounts[x.post_id]=(likeCounts[x.post_id]||0)+1);
+  (comments||[]).forEach(x=>commentCounts[x.post_id]=(commentCounts[x.post_id]||0)+1);
+  $("feedList").innerHTML=posts.map(p=>renderPost(p,likeCounts[p.id]||0,commentCounts[p.id]||0,likedSet.has(p.id))).join("");
+}
+function renderPost(p,likes,comments,liked){
+  const prof=p.profiles||{},name=prof.full_name||prof.username||"VYBE user",mine=p.user_id===currentUser.id;
+  const date=p.created_at?new Date(p.created_at).toLocaleString():"";
+  return `<article class="card post" id="post-${esc(p.id)}"><div class="post-top"><div class="userline">${avatarHTML(prof)}<div><div class="username">${esc(name)}</div><div class="handle">@${esc(prof.username||"user")} · ${esc(date)}</div></div></div>${mine?`<button class="action" onclick="deletePost('${esc(p.id)}')">•••</button>`:`<button class="action" onclick="followUser('${esc(p.user_id)}')">＋ Follow</button>`}</div>${p.content?`<div class="post-content">${esc(p.content)}</div>`:""}${p.image_url?`<img class="post-image" src="${esc(p.image_url)}" alt="Post photo" loading="lazy">`:""}<div class="post-actions"><button class="action ${liked?"liked":""}" onclick="toggleLike('${esc(p.id)}',${liked})">${liked?"♥":"♡"} ${likes}</button><button class="action" onclick="toggleComments('${esc(p.id)}')">▢ ${comments} comments</button></div><div class="comments hidden" id="comments-${esc(p.id)}"><div id="commentList-${esc(p.id)}" class="small muted">Loading comments…</div><div class="comment-form"><input class="field" id="commentInput-${esc(p.id)}" placeholder="Write a comment…" maxlength="300"><button class="primary" onclick="addComment('${esc(p.id)}')">Send</button></div></div></article>`;
+}
+async function publishPost(){
+  const content=$("postText").value.trim();if(!content&&!selectedImage){setStatus("postStatus","Text ya photo add karo.");return}
+  $("publishBtn").disabled=true;setStatus("postStatus","Post share ho rahi hai…");
+  try{
+    let image_url=null;
+    if(selectedImage){
+      const ext=(selectedImage.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"");
+      const path=`${currentUser.id}/${Date.now()}.${ext}`;
+      const {error:upErr}=await db.storage.from("post-media").upload(path,selectedImage,{upsert:false,contentType:selectedImage.type||"image/jpeg"});if(upErr)throw upErr;
+      const {data}=db.storage.from("post-media").getPublicUrl(path);image_url=data.publicUrl;
+    }
+    const {error}=await db.from("posts").insert({user_id:currentUser.id,content,image_url});if(error)throw error;
+    $("postText").value="";$("charCount").textContent="0/280";$("postFile").value="";selectedImage=null;$("imagePreview").classList.add("hidden");setStatus("postStatus","");toast("Post shared!");await loadFeed();
+  }catch(e){setStatus("postStatus",e.message||"Post share nahi hui.")}
+  finally{$("publishBtn").disabled=false}
+}
+async function toggleLike(postId,alreadyLiked){
+  try{if(alreadyLiked){const {error}=await db.from("likes").delete().eq("post_id",postId).eq("user_id",currentUser.id);if(error)throw error}
+    else{const {error}=await db.from("likes").insert({post_id:postId,user_id:currentUser.id});if(error&&!String(error.message).includes("duplicate"))throw error}
+    await loadFeed();
+  }catch(e){toast(e.message)}
+}
+async function toggleComments(postId){const el=$("comments-"+postId);el.classList.toggle("hidden");if(!el.classList.contains("hidden"))await loadComments(postId)}
+async function loadComments(postId){
+  const {data,error}=await db.from("comments").select("*, profiles(username,full_name)").eq("post_id",postId).order("created_at",{ascending:true}).limit(50);
+  if(error){$("commentList-"+postId).textContent=error.message;return}
+  $("commentList-"+postId).innerHTML=data?.length?data.map(c=>`<div class="comment"><strong>${esc(c.profiles?.full_name||c.profiles?.username||"User")}</strong>${esc(c.content)}</div>`).join(""):'No comments yet. Be the first!';
+}
+async function addComment(postId){
+  const input=$("commentInput-"+postId),content=input.value.trim();if(!content)return;
+  const {error}=await db.from("comments").insert({post_id:postId,user_id:currentUser.id,content});if(error){toast(error.message);return}
+  input.value="";await loadComments(postId);toast("Comment added");
+}
+async function deletePost(postId){
+  if(!confirm("Is post ko delete karna hai?"))return;
+  const {error}=await db.from("posts").delete().eq("id",postId).eq("user_id",currentUser.id);if(error){toast(error.message);return}toast("Post deleted");await loadFeed();
+}
+async function followUser(userId){
+  if(userId===currentUser.id)return;
+  const {error}=await db.from("follows").insert({follower_id:currentUser.id,following_id:userId});
+  if(error){toast(String(error.message).includes("duplicate")?"Already following.":error.message);return}toast("You are now following this user");
+}
+async function loadProfilePage(){
+  await loadCurrentProfile();const p=currentProfile||{};
+  $("profileAvatar").innerHTML=p.avatar_url?`<img src="${esc(p.avatar_url)}">`:esc(initials(p.full_name||p.username));
+  $("profileName").textContent=p.full_name||"Your profile";$("profileHandle").textContent="@"+(p.username||"");
+  $("editFullName").value=p.full_name||"";$("editUsername").value=p.username||"";
+  const {data,error}=await db.from("posts").select("*, profiles(id,username,full_name,avatar_url)").eq("user_id",currentUser.id).order("created_at",{ascending:false});
+  if(error){$("myPosts").textContent=error.message;return}
+  $("profileCounts").textContent=`${data.length} post${data.length===1?"":"s"}`;
+  $("myPosts").innerHTML=data.length?data.map(x=>renderPost(x,0,0,false)).join(""):'<div class="empty">You have not posted anything yet.</div>';
+}
+async function saveProfile(){
+  const full_name=$("editFullName").value.trim(),username=$("editUsername").value.trim().toLowerCase().replace(/[^a-z0-9_.]/g,"");
+  if(username.length<3){setStatus("profileStatus","Username kam se kam 3 characters ka hona chahiye.");return}
+  const {error}=await db.from("profiles").upsert({id:currentUser.id,full_name,username},{onConflict:"id"});if(error){setStatus("profileStatus",error.message);return}
+  await loadCurrentProfile();setStatus("profileStatus","Profile saved!");$("profileName").textContent=full_name||username;$("profileHandle").textContent="@"+username;
+}
+async function loadNotifications(){
+  const {data,error}=await db.from("notifications").select("*").eq("user_id",currentUser.id).order("created_at",{ascending:false}).limit(30);
+  if(error){$("notificationList").textContent="Notifications load nahi hui: "+error.message;return}
+  if(!data?.length){$("notificationList").textContent="Abhi koi notification nahi hai.";return}
+  $("notificationList").innerHTML=data.map(n=>`<div class="comment">${esc((n.type||"activity").replaceAll("_"," "))} · ${esc(n.created_at?new Date(n.created_at).toLocaleString():"")}</div><div class="divider"></div>`).join("");
+}
+async function logout(){if(db)await db.auth.signOut();showAuth()}
+$("switchAuth").addEventListener("click",switchAuthMode);
+$("authSubmit").addEventListener("click",handleAuth);
+$("password").addEventListener("keydown",e=>{if(e.key==="Enter")handleAuth()});
+$("logoutBtn").addEventListener("click",logout);
+$("publishBtn").addEventListener("click",publishPost);
+$("postText").addEventListener("input",()=>$("charCount").textContent=$("postText").value.length+"/280");
+$("postFile").addEventListener("change",e=>{selectedImage=e.target.files?.[0]||null;if(selectedImage){$("imagePreview").src=URL.createObjectURL(selectedImage);$("imagePreview").classList.remove("hidden")}else $("imagePreview").classList.add("hidden")});
+$("refreshBtn").addEventListener("click",()=>{if(currentUser)loadFeed();else toast("Log in first")});
+document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
+$("saveProfile").addEventListener("click",saveProfile);
+setup();
+</script>
+</body>
+</html>
